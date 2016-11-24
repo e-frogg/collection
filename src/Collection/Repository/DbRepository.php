@@ -20,15 +20,17 @@ abstract class DbRepository implements RepositoryInterface{
 
     /**
      * @param DbAdapter $db
+     * @return $this
      */
     public function setDb($db)
     {
         $this->db = $db;
+        return $this;
     }
 
     /**
      * @param DbAdapter $db
-     * @return static
+     * @return $this
      */
     public static function factory(DbAdapter $db) {
         $instance = new static();
