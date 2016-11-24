@@ -1,0 +1,24 @@
+{
+    "name": "efrogg/collection",
+    "type": "library",
+    "description": "ObjectCollection manipulation",
+    "keywords": ["collection"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Raphaël HOMANN",
+            "email": "raph@e-frogg.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": { "Efrogg\\Collection\\": "src/Collection/" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.0.x-dev"
+        }
+    }
+}
