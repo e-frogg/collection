@@ -11,7 +11,7 @@ namespace Efrogg\Collection\Cache;
 
 
 use Efrogg\Collection\ObjectCollection;
-use Efrogg\Collection\Query\DecoratorInterface;
+use Efrogg\Db\Query\DecoratorInterface;
 use Efrogg\Collection\Repository\RepositoryInterface;
 
 abstract class CacheRepository

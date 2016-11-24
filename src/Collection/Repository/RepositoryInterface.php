@@ -10,7 +10,7 @@ namespace Efrogg\Collection\Repository;
 
 
 use Efrogg\Collection\ObjectCollection;
-use Efrogg\Collection\Query\DecoratorInterface;
+use Efrogg\Db\Query\DecoratorInterface;
 
 interface RepositoryInterface
 {

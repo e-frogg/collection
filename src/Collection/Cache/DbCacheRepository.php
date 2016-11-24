@@ -12,7 +12,7 @@ namespace Efrogg\Collection\Cache;
 
 use Efrogg\Db\Query\DbQueryDecorator;
 use Efrogg\Db\Tools\DbTools;
-use Efrogg\Collection\Query\DecoratorInterface;
+use Efrogg\Db\Query\DecoratorInterface;
 use Efrogg\Collection\Repository\DbRepository;
 
 class DbCacheRepository extends CacheRepository
