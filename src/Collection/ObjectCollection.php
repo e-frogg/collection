@@ -216,8 +216,8 @@ class ObjectCollection implements \Iterator, \Countable
         if (null === $pk) {
             pp($this->primary_key);
             pp($item);
-            // interdit d'ajouter un objet qui nous met une clé primaire nulle
             dd("no primary");
+            // interdit d'ajouter un objet qui nous met une clé primaire nulle
             return false;
         }
 
@@ -506,11 +506,18 @@ class ObjectCollection implements \Iterator, \Countable
         }
 
         usort($arr, $callback_order);
-
         $collection->addMultiple($arr);
         return $collection;
     }
 
+    /**
+     * @param $orders
+     * ex : array(
+     *      "key1" => ObjectCollection::SORT_ASC,
+     *      "key2.subkey" => ObjectCollection::SORT_DESC
+     * )
+     * @return ObjectCollection
+     */
     public function orderBy($orders)
     {
         return $this->orderByCallback(
@@ -591,9 +598,16 @@ class ObjectCollection implements \Iterator, \Countable
         return $index_values;
     }
 
+    /**
+     * @param $items
+     * @return $this
+     */
     public function addMultiple($items)
     {
         foreach ($items as $item) {
+            if(is_array($item)) {
+                $item = new ArrayObjectItem($item);
+            }
             $this->add($item);
         }
         return $this;
@@ -666,6 +680,12 @@ class ObjectCollection implements \Iterator, \Countable
         $new = $this->factoryFromThis(true);
         $new->addMultiple($this);
         return $new;
+    }
+
+    public function each(callable $callback) {
+        foreach($this->data as $k => $item) {
+            $callback($item);
+        }
     }
 
 }
