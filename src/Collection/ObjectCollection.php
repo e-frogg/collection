@@ -9,6 +9,8 @@
 namespace Efrogg\Collection;
 
 
+use Symfony\Component\Config\Definition\Exception\Exception;
+
 class ObjectCollection implements \Iterator, \Countable
 {
 
@@ -22,6 +24,7 @@ class ObjectCollection implements \Iterator, \Countable
 
     const SORT_ASC = 0;
     const SORT_DESC = 1;
+    const NULL_KEY = "__NULL__";
 
 
     protected $data = array();
@@ -207,6 +210,9 @@ class ObjectCollection implements \Iterator, \Countable
      */
     public function add($item)
     {
+        if(null === $item) throw new \InvalidArgumentException('item cannot be null');
+        if(!is_object($item)) throw new \InvalidArgumentException('item must be an object');
+
         if (!is_null($this->primary_key)) {
             $pk = $item->{$this->primary_key};
         } else {
@@ -225,9 +231,13 @@ class ObjectCollection implements \Iterator, \Countable
         $this->primary_index[] = $pk;
 
         foreach ($this->liste_index_keys as $key => $type_index) {
-            $k = $item->{$key};
-
-            $this->indexes[$key][$k][] = $pk;
+            if (property_exists($item,$key)) {
+                $k = $item->{$key};
+                if(null === $k) {
+                    $k = self::NULL_KEY;
+                }
+                $this->indexes[$key][$k][] = $pk;
+            }
         }
 
         return true;
@@ -566,6 +576,9 @@ class ObjectCollection implements \Iterator, \Countable
         if (isset($this->indexes[$key_name])) {
             // colonne indexée
             foreach ($key_value as $one_key_value) {
+                if(null === $one_key_value) {
+                    $one_key_value = self::NULL_KEY;
+                }
                 if (isset($this->indexes[$key_name][$one_key_value])) {
                     $one_index_values = $this->indexes[$key_name][$one_key_value];
 
