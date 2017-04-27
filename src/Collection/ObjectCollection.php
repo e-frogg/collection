@@ -214,11 +214,8 @@ class ObjectCollection implements \Iterator, \Countable
         }
 
         if (null === $pk) {
-            pp($this->primary_key);
-            pp($item);
-            dd("no primary");
             // interdit d'ajouter un objet qui nous met une clé primaire nulle
-            return false;
+            throw new \InvalidArgumentException("Primary key cant be null");
         }
 
         $this->data[$pk] = $item;
