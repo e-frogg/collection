@@ -1,2 +1,2 @@
 #!/bin/bash
-php vendor/bin/atoum -d ./Tests
+php ../../bin/atoum -d ./Tests
