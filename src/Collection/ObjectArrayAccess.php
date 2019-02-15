@@ -11,11 +11,14 @@ namespace Efrogg\Collection;
 
 class ObjectArrayAccess implements \ArrayAccess
 {
-    public function __construct($data)
+    // todo : implémenter une structure fixe
+//    protected static $fixed_structure=false;
+//    protected static $structure_properties=[];
+
+    public function __construct($data=[])
     {
         $this->data=$data;
     }
-
 
     protected $data = [];
     /**
@@ -166,6 +169,16 @@ class ObjectArrayAccess implements \ArrayAccess
     {
         $this->data = $data;
     }
+
+    /**
+     * renvoie la liste des propriétés accessibles dans l'objet
+     * @return array
+     */
+    public function getAttributes(): array
+    {
+        return array_keys($this->data);
+    }
+
 
     /**
      * détermine si la propriété existe et n'est pas vide
