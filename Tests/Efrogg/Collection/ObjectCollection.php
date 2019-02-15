@@ -2,6 +2,7 @@
 namespace Efrogg\Collection\tests\units;
 
 require_once __DIR__ . '/../../../src/Collection/ObjectCollection.php';
+require_once __DIR__ . '/polyfill.php';
 
 use atoum;
 

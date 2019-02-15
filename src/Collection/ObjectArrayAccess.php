@@ -11,13 +11,16 @@ namespace Efrogg\Collection;
 
 class ObjectArrayAccess implements \ArrayAccess
 {
-    // todo : implémenter une structure fixe
-//    protected static $fixed_structure=false;
-//    protected static $structure_properties=[];
+    const FLEXIBLE_STRUCTURE = false;
+    const STATIC_STRUCTURE = 1;
+    const STATIC_STRUCTURE_WITH_EXCEPTION = 2;
+
+    protected static $fixed_structure = self::FLEXIBLE_STRUCTURE;
+    protected static $structure_properties = [];
 
     public function __construct($data=[])
     {
-        $this->data=$data;
+        $this->setData($data);
     }
 
     protected $data = [];
@@ -63,10 +66,14 @@ class ObjectArrayAccess implements \ArrayAccess
      * </p>
      * @return void
      * @since 5.0.0
+     *
+     * @throws \RuntimeException
      */
     public function offsetSet($offset, $value)
     {
-        $this->data[$offset] = $value;
+        if($this->offsetIsAuthorized($offset)) {
+            $this->data[$offset] = $value;
+        }
     }
 
     /**
@@ -106,16 +113,18 @@ class ObjectArrayAccess implements \ArrayAccess
             // add to an array
             // addStep => $this->steps[]=...
             $property_name = $this->getSnakeCase(substr($name,3)).'s';
-            foreach($arguments as $item) {
-                if(property_exists($this,$property_name)) {
-                    // propriété existante
-                    $this->$property_name[]=$item;
-                } elseif($this->__isset($property_name)) {
-                    // propriété dynamique existante
-                    $this->data[$property_name][]=$item;
-                } else {
-                    // création propriété dynamique
-                    $this->data[$property_name]=[$item];
+            if($this->offsetIsAuthorized($property_name)) {
+                foreach ($arguments as $item) {
+                    if (property_exists($this, $property_name)) {
+                        // propriété existante
+                        $this->$property_name[] = $item;
+                    } elseif ($this->__isset($property_name)) {
+                        // propriété dynamique existante
+                        $this->data[$property_name][] = $item;
+                    } else {
+                        // création propriété dynamique
+                        $this->data[$property_name] = [$item];
+                    }
                 }
             }
             return $this;
@@ -124,7 +133,9 @@ class ObjectArrayAccess implements \ArrayAccess
         // get : fluent setter
         if(strpos($name, "set") === 0) {
             $property_name = $this->getSnakeCase(substr($name,3));
-            $this->data[$property_name]=$arguments[0];
+            if($this->offsetIsAuthorized($property_name)) {
+                $this->data[$property_name] = $arguments[0];
+            }
             return $this;
         }
 
@@ -167,7 +178,15 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function setData(array $data)
     {
-        $this->data = $data;
+        if(static::$fixed_structure) {
+            // on valide les champs
+            foreach($data as $key => $value) {
+                $this->offsetSet($key,$value);
+            }
+        } else {
+            // on bourre tout sans se poser de question
+            $this->data = $data;
+        }
     }
 
     /**
@@ -188,6 +207,26 @@ class ObjectArrayAccess implements \ArrayAccess
     protected function propertyIsNotEmpty($property_name)
     {
         return (isset($this->$property_name) || $this->__isset($property_name)) && !empty($property_name);
+    }
+
+    /**
+     * @param $offset
+     * @return bool
+     *
+     * @throws \RuntimeException
+     */
+    private function offsetIsAuthorized($offset): bool
+    {
+        if (static::$fixed_structure>0 && !\in_array($offset, static::$structure_properties, true)) {
+            // set d'un offset non autorisé
+            if (static::$fixed_structure === self::STATIC_STRUCTURE_WITH_EXCEPTION) {
+                throw new \RuntimeException("The offset $offset is not allowed here");
+            }
+            // on ne sauvegarde pas la donnée
+            return false;
+        }
+
+        return true;
     }
 
 
