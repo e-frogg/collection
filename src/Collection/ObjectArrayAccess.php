@@ -38,7 +38,8 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function offsetExists($offset)
     {
-        return isset($this->data[$offset]) && array_key_exists($offset,$this->data);
+        return property_exists($this, $offset) ||
+            (isset($this->data[$offset]) && array_key_exists($offset, $this->data));
     }
 
     /**
@@ -52,6 +53,9 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function offsetGet($offset)
     {
+        if (property_exists($this, $offset)) {
+            return $this->$offset;
+        }
         return $this->data[$offset];
     }
 
@@ -71,8 +75,12 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function offsetSet($offset, $value)
     {
-        if($this->offsetIsAuthorized($offset)) {
-            $this->data[$offset] = $value;
+        if (property_exists($this, $offset)) {
+            $this->$offset = $value;
+        } else {
+            if ($this->offsetIsAuthorized($offset)) {
+                $this->data[$offset] = $value;
+            }
         }
     }
 
@@ -87,7 +95,11 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function offsetUnset($offset)
     {
-        unset($this->data[$offset]);
+        if (property_exists($this, $offset)) {
+            unset($this->$offset);
+        } else {
+            unset($this->data[$offset]);
+        }
     }
 
     public function __isset($name)
@@ -98,12 +110,12 @@ class ObjectArrayAccess implements \ArrayAccess
 
     public function __set($name, $value)
     {
-        $this->data[$name] = $value;
+        $this->offsetSet($name, $value);
     }
 
     public function __get($name)
     {
-        return $this->data[$name];
+        return $this->offsetGet($name);
     }
 
     public function __call($name, $arguments)
@@ -133,9 +145,7 @@ class ObjectArrayAccess implements \ArrayAccess
         // get : fluent setter
         if(strpos($name, "set") === 0) {
             $property_name = $this->getSnakeCase(substr($name,3));
-            if($this->offsetIsAuthorized($property_name)) {
-                $this->data[$property_name] = $arguments[0];
-            }
+            $this->offsetSet($property_name, $arguments[0]);
             return $this;
         }
 
@@ -190,7 +200,7 @@ class ObjectArrayAccess implements \ArrayAccess
     }
 
     /**
-     * renvoie la liste des propriétés accessibles dans l'objet
+     * renvoie la liste des propriétés accessibles dans l'objet automatique
      * @return array
      */
     public function getAttributes(): array
