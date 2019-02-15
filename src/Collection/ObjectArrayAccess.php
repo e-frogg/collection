@@ -98,24 +98,63 @@ class ObjectArrayAccess implements \ArrayAccess
 
     public function __call($name, $arguments)
     {
-        if(substr($name,0,3) === "set") {
-            $property_name = $this->getPropertyName(substr($name,3));
+        // add : fluent setter
+        if (strpos($name, "add") === 0) {
+            // add to an array
+            // addStep => $this->steps[]=...
+            $property_name = $this->getSnakeCase(substr($name,3)).'s';
+            foreach($arguments as $item) {
+                if(property_exists($this,$property_name)) {
+                    // propriété existante
+                    $this->$property_name[]=$item;
+                } elseif($this->__isset($property_name)) {
+                    // propriété dynamique existante
+                    $this->data[$property_name][]=$item;
+                } else {
+                    // création propriété dynamique
+                    $this->data[$property_name]=[$item];
+                }
+            }
+            return $this;
+        }
+
+        // get : fluent setter
+        if(strpos($name, "set") === 0) {
+            $property_name = $this->getSnakeCase(substr($name,3));
             $this->data[$property_name]=$arguments[0];
             return $this;
         }
+
+        if(strpos($name, "get") === 0) {
+            $property_name = $this->getSnakeCase(substr($name,3));
+            if(property_exists($this,$property_name) || $this->__isset($property_name)) {
+                return $this->$property_name;
+            }
+        }
+
+        // rien trouvé
+        return null;
     }
 
-    protected function getPropertyName($substr)
+    public function getSnakeCase($camel_case)
     {
         return preg_replace_callback("/([A-Z]{1})/",function($majuscule) {
             return '_'.strtolower($majuscule[1]);
-        },lcfirst($substr));
+        },lcfirst($camel_case));
+    }
+
+    public function getCamelCase($snake_case)
+    {
+        $camel_case = preg_replace_callback("#_(.)#",function($minuscule) {
+            return strtoupper($minuscule[1]);
+        },lcfirst($snake_case));
+        return $camel_case;
     }
 
     /**
      * @return array
      */
-    public function getData(): array
+    public function getData()
     {
         return $this->data;
     }
@@ -127,5 +166,16 @@ class ObjectArrayAccess implements \ArrayAccess
     {
         $this->data = $data;
     }
+
+    /**
+     * détermine si la propriété existe et n'est pas vide
+     * @param $property_name
+     * @return bool
+     */
+    protected function propertyIsNotEmpty($property_name)
+    {
+        return (isset($this->$property_name) || $this->__isset($property_name)) && !empty($property_name);
+    }
+
 
 }
