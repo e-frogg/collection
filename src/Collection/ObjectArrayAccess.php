@@ -124,7 +124,8 @@ class ObjectArrayAccess implements \ArrayAccess
         if (strpos($name, "add") === 0) {
             // add to an array
             // addStep => $this->steps[]=...
-            $property_name = $this->getSnakeCase(substr($name,3)).'s';
+            // addAddress => $this->addresses[]=...
+            $property_name = Pluralizer::plural($this->getSnakeCase(substr($name,3)));
             if($this->offsetIsAuthorized($property_name)) {
                 foreach ($arguments as $item) {
                     if (property_exists($this, $property_name)) {
