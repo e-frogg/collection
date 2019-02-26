@@ -149,6 +149,8 @@ class ObjectArrayAccess extends atoum
         $obj->setDynamicPropertyCamelCase("camelCase C");
         $obj->anotherDynamicPropertyCamelCase = "camelCase D";
         $obj->dynamic_snake_case_property = "snake_case E";
+        $obj->addTableProperty("123");
+        $obj->addTableProperty("456");
 
         // tests
 
@@ -176,6 +178,14 @@ class ObjectArrayAccess extends atoum
 
         $this->string($obj->dynamic_snake_case_property)
             ->isEqualTo("snake_case E");
+
+
+        $this
+            ->array($obj->getTableProperties())
+            ->isEqualTo($obj->table_properties)
+            ->hasSize(2)
+            ->isEqualTo(["123", "456"])
+            ->contains("456");
     }
 
     public function testStrictCamelCasePropertiesCaseconversion()
@@ -189,6 +199,8 @@ class ObjectArrayAccess extends atoum
         $obj->setDynamicPropertyCamelCase("camelCase C");
         $obj->anotherDynamicPropertyCamelCase = "camelCase D";
         $obj->dynamic_snake_case_property = "snake_case E";
+        $obj->addTableProperty("123");
+        $obj->addTableProperty("456");
 
         // tests
 
@@ -218,6 +230,14 @@ class ObjectArrayAccess extends atoum
             ->isEqualTo("snake_case E");
         $this->variable($obj->dynamic_snake_case_property)
             ->isNull();
+
+        $this
+            ->array($obj->getTableProperties())
+            ->isEqualTo($obj->tableProperties)
+            ->hasSize(2)
+            ->isEqualTo(["123", "456"])
+            ->contains("456");
+
     }
 
 
@@ -232,7 +252,8 @@ class ObjectArrayAccess extends atoum
         $obj->setDynamicPropertyCamelCase("camelCase C");
         $obj->anotherDynamicPropertyCamelCase = "camelCase D";
         $obj->dynamic_snake_case_property = "snake_case E";
-
+        $obj->addTableProperty("123");
+        $obj->addTableProperty("456");
         // tests
 
         // A
@@ -260,6 +281,16 @@ class ObjectArrayAccess extends atoum
             ->isEqualTo("snake_case E");
         $this->variable($obj->getDynamicSnakeCaseProperty())
             ->isNull();
+
+        $this
+            ->array($obj->getTableProperties())
+            ->isEqualTo($obj->tableProperties)
+            ->hasSize(2)
+            ->isEqualTo(["123", "456"])
+            ->contains("456");
+        $this->variable($obj->table_properties)
+            ->isNull();
+
     }
 
 }

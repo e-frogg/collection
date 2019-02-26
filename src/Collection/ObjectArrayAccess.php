@@ -174,7 +174,7 @@ class ObjectArrayAccess implements \ArrayAccess
     {
         if (!$force_conversion && static::$strict_property_case) {
             // la conversion sera faite ailleurs
-            return $method_name;
+            return lcfirst($method_name);
         }
 
         if (static::$property_case === static::$method_case) {
