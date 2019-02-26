@@ -5,11 +5,17 @@ namespace Efrogg\Collection\tests\units;
 require_once __DIR__ . '/../../../src/Collection/ObjectCollection.php';
 require_once __DIR__ . '/Assets/FixedArrayAccess.php';
 require_once __DIR__ . '/Assets/FixedArrayAccessWithException.php';
+require_once __DIR__ . '/Assets/StandardCaseArrayAccess.php';
+require_once __DIR__ . '/Assets/StrictCamelCasePropertyArrayAccess.php';
+require_once __DIR__ . '/Assets/NonStrictCamelCasePropertyArrayAccess.php';
 require_once __DIR__ . '/polyfill.php';
 
 use atoum;
 use Efrogg\Collection\tests\units\Assets\FixedArrayAccess;
 use Efrogg\Collection\tests\units\Assets\FixedArrayAccessWithException;
+use Efrogg\Collection\tests\units\Assets\NonStrictCamelCasePropertyArrayAccess;
+use Efrogg\Collection\tests\units\Assets\StandardCaseArrayAccess;
+use Efrogg\Collection\tests\units\Assets\StrictCamelCasePropertyArrayAccess;
 
 class ObjectArrayAccess extends atoum
 {
@@ -131,4 +137,129 @@ class ObjectArrayAccess extends atoum
             ->isInstanceOf(\RuntimeException::class)
         ;
     }
+
+    public function testDefaultCaseconversion()
+    {
+        $obj = new \Efrogg\Collection\ObjectArrayAccess([
+            "initial_property_snake_case" => "snake case A",
+            "initialPropertyCamelCase" => "camelCase B",
+        ]);
+
+        // par défaut : non strict, snake case propriétés, camel pour les méthodes
+        $obj->setDynamicPropertyCamelCase("camelCase C");
+        $obj->anotherDynamicPropertyCamelCase = "camelCase D";
+        $obj->dynamic_snake_case_property = "snake_case E";
+
+        // tests
+
+        // A
+        $this->string($obj->initial_property_snake_case)
+            ->isEqualTo($obj->getInitialPropertySnakeCase())
+            ->isEqualTo("snake case A");
+
+        // B
+        $this->string($obj->initialPropertyCamelCase)
+            ->isEqualTo("camelCase B");
+        $this->variable($obj->getInitialPropertyCamelCase())
+            ->isNull();
+
+        // C
+        $this->string($obj->dynamic_property_camel_case)
+            ->isEqualTo("camelCase C")
+            ->isEqualTo($obj->getDynamicPropertyCamelCase());
+
+        // D
+        $this->string($obj->anotherDynamicPropertyCamelCase)
+            ->isEqualTo("camelCase D");
+        $this->variable($obj->getAnotherDynamicPropertyCamelCase())
+            ->isNull();
+
+        $this->string($obj->dynamic_snake_case_property)
+            ->isEqualTo("snake_case E");
+    }
+
+    public function testStrictCamelCasePropertiesCaseconversion()
+    {
+        $obj = new StrictCamelCasePropertyArrayAccess([
+            "initial_property_snake_case" => "snake case A",
+            "initialPropertyCamelCase" => "camelCase B",
+        ]);
+
+        // par défaut : non strict, snake case propriétés, camel pour les méthodes
+        $obj->setDynamicPropertyCamelCase("camelCase C");
+        $obj->anotherDynamicPropertyCamelCase = "camelCase D";
+        $obj->dynamic_snake_case_property = "snake_case E";
+
+        // tests
+
+        // A
+        $this->string($obj->initialPropertySnakeCase)
+            ->isEqualTo($obj->getInitialPropertySnakeCase())
+            ->isEqualTo("snake case A");
+        $this->variable($obj->initial_property_snake_case)
+            ->isNull();
+
+        // B
+        $this->string($obj->initialPropertyCamelCase)
+            ->isEqualTo($obj->getInitialPropertyCamelCase())
+            ->isEqualTo("camelCase B");
+
+        // C
+        $this->string($obj->dynamicPropertyCamelCase)
+            ->isEqualTo("camelCase C")
+            ->isEqualTo($obj->getDynamicPropertyCamelCase());
+
+        // D
+        $this->string($obj->anotherDynamicPropertyCamelCase)
+            ->isEqualTo($obj->getAnotherDynamicPropertyCamelCase())
+            ->isEqualTo("camelCase D");
+
+        $this->string($obj->dynamicSnakeCaseProperty)
+            ->isEqualTo("snake_case E");
+        $this->variable($obj->dynamic_snake_case_property)
+            ->isNull();
+    }
+
+
+    public function testNonStrictCamelCasePropertiesCaseconversion()
+    {
+        $obj = new NonStrictCamelCasePropertyArrayAccess([
+            "initial_property_snake_case" => "snake case A",
+            "initialPropertyCamelCase" => "camelCase B",
+        ]);
+
+        // par défaut : non strict, snake case propriétés, camel pour les méthodes
+        $obj->setDynamicPropertyCamelCase("camelCase C");
+        $obj->anotherDynamicPropertyCamelCase = "camelCase D";
+        $obj->dynamic_snake_case_property = "snake_case E";
+
+        // tests
+
+        // A
+        $this->string($obj->initial_property_snake_case)
+            ->isEqualTo("snake case A");
+        $this->variable($obj->getInitialPropertySnakeCase())
+            ->isNull();
+
+        // B
+        $this->string($obj->initialPropertyCamelCase)
+            ->isEqualTo($obj->getInitialPropertyCamelCase())
+            ->isEqualTo("camelCase B");
+
+        // C
+        $this->string($obj->dynamicPropertyCamelCase)
+            ->isEqualTo("camelCase C")
+            ->isEqualTo($obj->getDynamicPropertyCamelCase());
+
+        // D
+        $this->string($obj->anotherDynamicPropertyCamelCase)
+            ->isEqualTo($obj->getAnotherDynamicPropertyCamelCase())
+            ->isEqualTo("camelCase D");
+
+        $this->string($obj->dynamic_snake_case_property)
+            ->isEqualTo("snake_case E");
+        $this->variable($obj->getDynamicSnakeCaseProperty())
+            ->isNull();
+    }
+
 }

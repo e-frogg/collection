@@ -14,9 +14,15 @@ class ObjectArrayAccess implements \ArrayAccess
     const FLEXIBLE_STRUCTURE = false;
     const STATIC_STRUCTURE = 1;
     const STATIC_STRUCTURE_WITH_EXCEPTION = 2;
+    const SNAKE_CASE = "SNAKE";
+    const CAMEL_CASE = "CAMEL";
 
     protected static $fixed_structure = self::FLEXIBLE_STRUCTURE;
     protected static $structure_properties = [];
+
+    protected static $property_case = self::SNAKE_CASE;
+    protected static $method_case = self::CAMEL_CASE;
+    protected static $strict_property_case = false;
 
     public function __construct($data=[])
     {
@@ -38,6 +44,7 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function offsetExists($offset)
     {
+//        $offset = $this->getOffsetName($offset);
         return property_exists($this, $offset) ||
             (isset($this->data[$offset]) && array_key_exists($offset, $this->data));
     }
@@ -53,6 +60,7 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function offsetGet($offset)
     {
+//        $offset = $this->getOffsetName($offset);
         if (property_exists($this, $offset)) {
             return $this->$offset;
         }
@@ -75,6 +83,7 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function offsetSet($offset, $value)
     {
+        $offset = $this->getOffsetName($offset);
         if (property_exists($this, $offset)) {
             $this->$offset = $value;
         } else {
@@ -125,7 +134,7 @@ class ObjectArrayAccess implements \ArrayAccess
             // add to an array
             // addStep => $this->steps[]=...
             // addAddress => $this->addresses[]=...
-            $property_name = Pluralizer::plural($this->getSnakeCase(substr($name,3)));
+            $property_name = Pluralizer::plural($this->methodNameToPropertyName(substr($name, 3)));
             if($this->offsetIsAuthorized($property_name)) {
                 foreach ($arguments as $item) {
                     if (property_exists($this, $property_name)) {
@@ -145,13 +154,13 @@ class ObjectArrayAccess implements \ArrayAccess
 
         // get : fluent setter
         if(strpos($name, "set") === 0) {
-            $property_name = $this->getSnakeCase(substr($name,3));
+            $property_name = $this->methodNameToPropertyName(substr($name, 3));
             $this->offsetSet($property_name, $arguments[0]);
             return $this;
         }
 
         if(strpos($name, "get") === 0) {
-            $property_name = $this->getSnakeCase(substr($name,3));
+            $property_name = $this->methodNameToPropertyName(substr($name, 3),true);
             if(property_exists($this,$property_name) || $this->__isset($property_name)) {
                 return $this->$property_name;
             }
@@ -161,14 +170,35 @@ class ObjectArrayAccess implements \ArrayAccess
         return null;
     }
 
-    public function getSnakeCase($camel_case)
+    private function methodNameToPropertyName($method_name,$force_conversion=false)
+    {
+        if (!$force_conversion && static::$strict_property_case) {
+            // la conversion sera faite ailleurs
+            return $method_name;
+        }
+
+        if (static::$property_case === static::$method_case) {
+            // pas de conversion, lcfirst dans tous les cas
+            return lcfirst($method_name);
+        }
+        if (static::$property_case === self::SNAKE_CASE) {
+            // conversion camel -> snake
+            return $this->getSnakeCase($method_name);
+        }
+
+        // conversion snake -> camel
+        return $this->getCamelCase($method_name);
+    }
+
+
+    protected function getSnakeCase($camel_case)
     {
         return preg_replace_callback("/([A-Z]{1})/",function($majuscule) {
             return '_'.strtolower($majuscule[1]);
         },lcfirst($camel_case));
     }
 
-    public function getCamelCase($snake_case)
+    protected function getCamelCase($snake_case)
     {
         $camel_case = preg_replace_callback("#_(.)#",function($minuscule) {
             return strtoupper($minuscule[1]);
@@ -189,7 +219,7 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function setData(array $data)
     {
-        if(static::$fixed_structure) {
+        if(static::$fixed_structure || static::$strict_property_case) {
             // on valide les champs
             foreach($data as $key => $value) {
                 $this->offsetSet($key,$value);
@@ -238,6 +268,18 @@ class ObjectArrayAccess implements \ArrayAccess
         }
 
         return true;
+    }
+
+    protected function getOffsetName($offset_name)
+    {
+        if (static::$strict_property_case) {
+
+            if (static::$property_case === self::SNAKE_CASE) {
+                return $this->getSnakeCase($offset_name);
+            }
+            return $this->getCamelCase($offset_name);
+        }
+        return $offset_name;
     }
 
 
