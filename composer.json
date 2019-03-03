@@ -20,7 +20,7 @@
         "doctrine/inflector":"^1.0"
     },
     "require-dev": {
-        "atoum/atoum": "~3.0"
+        "atoum/atoum": "~3.3"
     },
     "autoload": {
         "psr-4": { "Efrogg\\Collection\\": "src/Collection/" }

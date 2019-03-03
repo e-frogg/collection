@@ -1,37 +1,40 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d35d146ad8defe8b0fad366b6f1fa1ad",
+    "content-hash": "a4d3a852b8fde2f5c1ba147a34f8d79a",
     "packages": [
         {
-            "name": "efrogg/database",
-            "version": "v0.0.8",
+            "name": "doctrine/inflector",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/raphael-homann/DbManager.git",
-                "reference": "2b417d867ea9fe40003940844adc9df7f9530029"
+                "url": "https://github.com/doctrine/inflector.git",
+                "reference": "5527a48b7313d15261292c149e55e26eae771b0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/raphael-homann/DbManager/zipball/2b417d867ea9fe40003940844adc9df7f9530029",
-                "reference": "2b417d867ea9fe40003940844adc9df7f9530029",
+                "url": "https://api.github.com/repos/doctrine/inflector/zipball/5527a48b7313d15261292c149e55e26eae771b0a",
+                "reference": "5527a48b7313d15261292c149e55e26eae771b0a",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": "^7.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.2"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.0.x-dev"
+                    "dev-master": "1.3.x-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Efrogg\\Db\\": "src/Db/"
+                    "Doctrine\\Common\\Inflector\\": "lib/Doctrine/Common/Inflector"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -40,47 +43,119 @@
             ],
             "authors": [
                 {
-                    "name": "Raph raph",
-                    "email": "raph@e-frogg.com"
+                    "name": "Roman Borschel",
+                    "email": "roman@code-factory.org"
+                },
+                {
+                    "name": "Benjamin Eberlei",
+                    "email": "kontakt@beberlei.de"
+                },
+                {
+                    "name": "Guilherme Blanco",
+                    "email": "guilhermeblanco@gmail.com"
+                },
+                {
+                    "name": "Jonathan Wage",
+                    "email": "jonwage@gmail.com"
+                },
+                {
+                    "name": "Johannes Schmitt",
+                    "email": "schmittjoh@gmail.com"
                 }
             ],
-            "description": "Database tools",
+            "description": "Common String Manipulations with regard to casing and singular/plural rules.",
+            "homepage": "http://www.doctrine-project.org",
             "keywords": [
-                "database",
-                "mysql",
-                "pdo"
+                "inflection",
+                "pluralize",
+                "singularize",
+                "string"
             ],
-            "time": "2016-12-07T21:10:41+00:00"
+            "time": "2018-01-09T20:05:19+00:00"
+        },
+        {
+            "name": "symfony/polyfill-php71",
+            "version": "v1.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php71.git",
+                "reference": "1766834a22738196eb45486c4ca23c5739513bf4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php71/zipball/1766834a22738196eb45486c4ca23c5739513bf4",
+                "reference": "1766834a22738196eb45486c4ca23c5739513bf4",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.9-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php71\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 7.1+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2018-08-06T14:22:27+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "atoum/atoum",
-            "version": "3.0.0",
+            "version": "3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/atoum/atoum.git",
-                "reference": "decb381ef771ada37f8850774a9e9770a3da506f"
+                "reference": "c5279d0ecd4e2d53af6b38815db2cafee8fc46b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/atoum/atoum/zipball/decb381ef771ada37f8850774a9e9770a3da506f",
-                "reference": "decb381ef771ada37f8850774a9e9770a3da506f",
+                "url": "https://api.github.com/repos/atoum/atoum/zipball/c5279d0ecd4e2d53af6b38815db2cafee8fc46b6",
+                "reference": "c5279d0ecd4e2d53af6b38815db2cafee8fc46b6",
                 "shasum": ""
             },
             "require": {
                 "ext-hash": "*",
                 "ext-json": "*",
-                "ext-session": "*",
                 "ext-tokenizer": "*",
                 "ext-xml": "*",
-                "php": "^5.6.0 || ^7.0.0"
+                "php": "^5.6.0 || ^7.0.0 <7.4.0"
             },
             "replace": {
                 "mageekguy/atoum": "*"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "~1.12"
+                "friendsofphp/php-cs-fixer": "^2"
             },
             "suggest": {
                 "atoum/stubs": "Provides IDE support (like autocompletion) for atoum",
@@ -136,7 +211,7 @@
                 "test",
                 "unit testing"
             ],
-            "time": "2017-02-22T13:05:37+00:00"
+            "time": "2018-03-15T22:46:39+00:00"
         }
     ],
     "aliases": [],
