@@ -17,5 +17,5 @@ composer require efrogg/collection
 git clone https://github.com/e-frogg/collection collection
 cd collection
 composer install
-./launch_tests
+./vendor/bin/atoum -c .atoum.php -d ./Tests
 ```
