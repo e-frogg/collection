@@ -90,7 +90,7 @@ class ObjectCollection extends atoum {
     }
 
     /**
-     * Test la cr�ation d'une instance
+     * Test la création d'une instance
      */
 
     public function testNewInstance() {
@@ -100,7 +100,7 @@ class ObjectCollection extends atoum {
     }
 
     /**
-     * Test les methodes d'it�ration sur la collection
+     * Test les methodes d'itération sur la collection
      */
     public function testAddAndIterableCollection() {
         $collection = $this->factorySimpleCollectionWithItem();
@@ -127,7 +127,7 @@ class ObjectCollection extends atoum {
     }
 
     /**
-     * Test les methodes d'it�ration sur la collection avec une PK
+     * Test les methodes d'itération sur la collection avec une PK
      */
     public function testAddAndIterableCollectionWithPrimaryKey() {
         $collection = $this->factorySimpleCollectionWithItem(true);
@@ -142,7 +142,7 @@ class ObjectCollection extends atoum {
     }
 
     /**
-     * Test les methodes d'it�ration sur la collection avec une PK et une FK
+     * Test les methodes d'itération sur la collection avec une PK et une FK
      */
     public function testAddAndIterableCollectionWithPrimaryKeyAndSecondaryKey() {
         $collection = $this->factorySimpleCollectionWithItem(true,true);
@@ -172,7 +172,7 @@ class ObjectCollection extends atoum {
     public function testSecondaryIndexManagement() {
         $collection = new \Efrogg\Collection\ObjectCollection();
 
-        // test la cr�ation d'un index
+        // test la création d'un index
         $collection->addIndex("fk_index");
         $this
             ->boolean($collection->hasIndex("fk_index"))
@@ -185,7 +185,7 @@ class ObjectCollection extends atoum {
             ->isFalse();
 
 
-        // Test l'ajout et la suppression d'un index avec des donn�es d�ja pr�sentent dans la collection
+        // Test l'ajout et la suppression d'un index avec des données déja présentent dans la collection
         $collection = $this->factorySimpleCollectionWithItem();
         $collection->addIndex("propertie_fk");
         $this
@@ -347,7 +347,7 @@ class ObjectCollection extends atoum {
         // on group par "propertie_group"
         $grouped_by_collection = $collection->groupBy("propertie_group");
 
-        // test si on � bien que 2 elements dans la collection apres groupe
+        // test si on é bien que 2 elements dans la collection apres groupe
         $this
             ->integer(count($grouped_by_collection))
             ->isEqualTo(3);
@@ -604,31 +604,31 @@ class ObjectCollection extends atoum {
     }
 
     public function testLeftJoin() {
-    // simple join sans pr�ciser de column de destination
-    // => les objets seront merg�s entre eux
-    // => les objetst ne seront pas clon�s (original modifi�)
+    // simple join sans préciser de column de destination
+    // => les objets seront mergés entre eux
+    // => les objetst ne seront pas clonés (original modifié)
         $original_collection = $this->factorySimpleCollectionWithItem(true,true);
         $join_collection = $this->factoryJoinableCollection();
         $merged_collection = $original_collection->leftJoin($join_collection,array('propertie_join' => 'propertie_join'));
 
         $value_zero_item = $merged_collection->get('value_0');
         $this
-            // test une propri�t� qui proviens de la collection d'origine
+            // test une propriété qui proviens de la collection d'origine
             ->integer($value_zero_item->propertie_order)
             ->isEqualTo('2')
 
-            // test une propri�t� qui proviens de la collection joined
+            // test une propriété qui proviens de la collection joined
             ->string($value_zero_item->joined_string_test)
             ->isEqualTo('joined_test_string_2')
 
-            // test que l'objet d'origine � bien �t� merg�
+            // test que l'objet d'origine é bien été mergé
             ->string($original_collection->get('value_0')->joined_string_test)
             ->isEqualTo('joined_test_string_2');
 
-    // simple join sans pr�ciser de column de destination
-    // => les objets seront clon�s
-    // => les objets d'origine ne seront PAS modifi�s
-    // => les objets d'arriv� seront un merge des propri�t�s de B dans A
+    // simple join sans préciser de column de destination
+    // => les objets seront clonés
+    // => les objets d'origine ne seront PAS modifiés
+    // => les objets d'arrivé seront un merge des propriétés de B dans A
 
         $original_collection = $this->factorySimpleCollectionWithItem(true,true);
         $join_collection = $this->factoryJoinableCollection();
@@ -637,29 +637,29 @@ class ObjectCollection extends atoum {
             null,true,true
         );
 
-        // objets merg�s => la pk � chang� pour celle d'arriv� du join
+        // objets mergés => la pk é changé pour celle d'arrivé du join
         $value_zero_item = $merged_collection->get('joinvalue_0');
 
         $this
-            // test une propri�t� qui proviens de la collection d'origine
+            // test une propriété qui proviens de la collection d'origine
             ->integer($value_zero_item->propertie_order)
             ->isEqualTo(1)
 
-            // test une propri�t� qui proviens de la collection joined
+            // test une propriété qui proviens de la collection joined
             ->string($value_zero_item->joined_string_test)
             ->isEqualTo('joined_test_string_1')
 
-            // test une propri�t� merg�e depuis l'objet d'origine
+            // test une propriété mergée depuis l'objet d'origine
             ->string($value_zero_item->propertie2)
             ->isEqualTo('value2_1')
 
-            // test que l'objet d'origine n'a pas �t� touch�
+            // test que l'objet d'origine n'a pas été touché
             ->variable($original_collection->get('value_0')->joined_string_test)
             ->isEqualTo(null);
 
 
     // simple join sur une colonne
-    // l'objet de la seconde collection sera rappatri� dans la colonne sp�cifi�e
+    // l'objet de la seconde collection sera rappatrié dans la colonne spécifiée
         $original_collection = $this->factorySimpleCollectionWithItem(true,true);
         $join_collection = $this->factoryJoinableCollection();
         $merged_collection = $original_collection->leftJoin(
@@ -670,20 +670,20 @@ class ObjectCollection extends atoum {
 
         $value_zero_item = $merged_collection->get('value_0');
         $this
-            // test une propri�t� qui proviens de la collection d'origine
+            // test une propriété qui proviens de la collection d'origine
             ->integer($value_zero_item->propertie_order)
             ->isEqualTo('2')
 
-            // test que l'objet joined � bien �t� ins�r� dans la colonne demand�
+            // test que l'objet joined é bien été inséré dans la colonne demandé
             ->string($value_zero_item->joined_item->joined_string_test)
             ->isEqualTo('joined_test_string_2')
 
-            // test que l'objet d'origine n'a PAS �t� merg�
+            // test que l'objet d'origine n'a PAS été mergé
             ->variable($original_collection->get('value_0')->joined_string_test)
             ->isEqualTo(null);
 
     // multiple join sur une colonne
-    // les multiple objets de la seconde collection seront rappatri�s dans la colonne sp�cifi�e
+    // les multiple objets de la seconde collection seront rappatriés dans la colonne spécifiée
         $original_collection = $this->factorySimpleCollectionWithItem(true,true);
         $join_collection = $this->factoryJoinableCollection();
         $merged_collection = $original_collection->leftJoin(
@@ -695,17 +695,17 @@ class ObjectCollection extends atoum {
 
         $value_zero_item = $merged_collection->get('value_0');
         $this
-            // test une propri�t� qui proviens de la collection d'origine
+            // test une propriété qui proviens de la collection d'origine
             ->integer($value_zero_item->propertie_order)
             ->isEqualTo('2')
 
-            // test que les objets joined ont bien �t� ins�r�s dans la colonne demand�
+            // test que les objets joined ont bien été insérés dans la colonne demandé
             ->string($value_zero_item->joined_item[0]->joined_string_test)
             ->isEqualTo('joined_test_string_1')
             ->string($value_zero_item->joined_item[1]->joined_string_test)
             ->isEqualTo('joined_test_string_2')
 
-            // test que l'objet d'origine n'a PAS �t� merg�
+            // test que l'objet d'origine n'a PAS été mergé
             ->variable($original_collection->get('value_0')->joined_string_test)
             ->isEqualTo(null);
     }
