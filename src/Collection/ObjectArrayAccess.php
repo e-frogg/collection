@@ -58,7 +58,7 @@ class ObjectArrayAccess implements \ArrayAccess
      * @return mixed Can return all value types.
      * @since 5.0.0
      */
-    public function offsetGet($offset)
+    public function & offsetGet($offset)
     {
 //        $offset = $this->getOffsetName($offset);
         if (property_exists($this, $offset)) {
@@ -122,7 +122,7 @@ class ObjectArrayAccess implements \ArrayAccess
         $this->offsetSet($name, $value);
     }
 
-    public function __get($name)
+    public function & __get($name)
     {
         return $this->offsetGet($name);
     }

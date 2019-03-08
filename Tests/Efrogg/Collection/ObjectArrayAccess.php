@@ -21,7 +21,7 @@ class ObjectArrayAccess extends atoum
 {
 
     /**
-     * Test la cr�ation d'une instance
+     * Test la création d'une instance
      */
 
     public function testConstructor()
@@ -31,6 +31,97 @@ class ObjectArrayAccess extends atoum
             ->isInstanceOf(\Efrogg\Collection\ObjectArrayAccess::class);
     }
 
+    public function testReferenceAccess() {
+        $this->testArrayValues(new \stdClass());
+        $this->testArrayValues(new \Efrogg\Collection\ObjectArrayAccess());
+    }
+    protected function testArrayValues($testData) {
+
+
+        // initialisation d'un tableau directement
+        $testData->titi[] = 'first element';
+        $this
+            ->array($testData->titi)
+            ->hasSize(1);
+        $this
+            ->string(reset($testData->titi))
+            ->isEqualTo('first element');
+
+        // ajout d'une valeur au tableau
+        $testData->titi[] = 'second element';
+        $this
+            ->array($testData->titi)
+            ->hasSize(2);
+        $extracted = array_pop($testData->titi);
+        $this
+            ->string($extracted)
+            ->isEqualTo('second element');
+        $this
+            ->array($testData->titi)
+            ->hasSize(1);
+
+        // affectaion d'un tableau
+        $testData->titi = [1, 2, 3];
+        $this
+            ->array($testData->titi)
+            ->hasSize(3);
+
+        $testData->titi[] = 4;
+        $this
+            ->array($testData->titi)
+            ->hasSize(4);
+
+        // récupération du tableau dans une variable
+        $myTable = $testData->titi;
+        $this
+            ->array($myTable)
+            ->hasSize(4);
+
+        $myTable[]=12;
+        $this
+            ->array($myTable)
+            ->hasSize(5);           // la
+
+        $this
+            ->array($testData->titi)
+            ->hasSize(4);
+
+        // affectaion par le ++
+        $testData->nb++;
+        $this
+            ->integer($testData->nb)
+            ->isEqualTo(1);
+
+        $testData->nb++;
+        $this
+            ->integer($testData->nb)
+            ->isEqualTo(2);
+
+        // string
+        $testData->string .= "hello";
+        $this
+            ->string($testData->string)
+            ->isEqualTo('hello');
+
+        $testData->string.= " world";
+        $this
+            ->string($testData->string)
+            ->isEqualTo('hello world');
+
+
+        // test que la référence
+        $x = $testData->nb;
+        $this
+            ->integer($x)
+            ->isEqualTo(2);
+        $x++;
+        $this
+            ->integer($x)
+            ->isEqualTo(3)
+            ->integer($testData->nb)
+            ->isEqualTo(2);
+
+    }
     public function testSimpleAccess()
     {
         $variable = "variable";
@@ -63,6 +154,7 @@ class ObjectArrayAccess extends atoum
             ->contains("authorized_array_values")
             ->contains("unauthorized_array_values");
     }
+
 
     public function testFixedStructure()
     {
