@@ -50,11 +50,11 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
     /**
      * ObjectCollection constructor.
-     * @param array $data
+     * @param array|iterable|null $data
      */
-    public function __construct(array $data=null)
+    public function __construct($data=null)
     {
-        if(null !== $data) {
+        if(is_iterable($data)) {
             $this->addMultiple($data);
         }
     }
