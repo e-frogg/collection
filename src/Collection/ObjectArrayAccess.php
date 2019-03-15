@@ -219,14 +219,8 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function setData(array $data)
     {
-        if(static::$fixed_structure || static::$strict_property_case) {
-            // on valide les champs
-            foreach($data as $key => $value) {
-                $this->offsetSet($key,$value);
-            }
-        } else {
-            // on bourre tout sans se poser de question
-            $this->data = $data;
+        foreach($data as $key => $value) {
+            $this->offsetSet($key,$value);
         }
     }
 
