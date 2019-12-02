@@ -276,5 +276,22 @@ class ObjectArrayAccess implements \ArrayAccess
         return $offset_name;
     }
 
+    public function recursiveGetData()
+    {
+        return $this->recursiveGet($this->data);
+
+    }
+
+    private function recursiveGet(array $data)
+    {
+        foreach ($data as $k=>$v) {
+            if(is_array($v)) {
+                $data[$k]=$this->recursiveGet($data[$k]);
+            } elseif($v instanceof self) {
+                $data[$k] = $v->recursiveGetData();
+            }
+        }
+        return $data;
+    }
 
 }
