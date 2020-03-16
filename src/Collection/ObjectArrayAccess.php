@@ -24,12 +24,13 @@ class ObjectArrayAccess implements \ArrayAccess
     protected static $method_case = self::CAMEL_CASE;
     protected static $strict_property_case = false;
 
-    public function __construct($data=[])
+    public function __construct($data = [])
     {
         $this->setData($data);
     }
 
     protected $data = [];
+
     /**
      * Whether a offset exists
      * @link http://php.net/manual/en/arrayaccess.offsetexists.php
@@ -135,7 +136,7 @@ class ObjectArrayAccess implements \ArrayAccess
             // addStep => $this->steps[]=...
             // addAddress => $this->addresses[]=...
             $property_name = Pluralizer::plural($this->methodNameToPropertyName(substr($name, 3)));
-            if($this->offsetIsAuthorized($property_name)) {
+            if ($this->offsetIsAuthorized($property_name)) {
                 foreach ($arguments as $item) {
                     if (property_exists($this, $property_name)) {
                         // propriété existante
@@ -153,15 +154,15 @@ class ObjectArrayAccess implements \ArrayAccess
         }
 
         // get : fluent setter
-        if(strpos($name, "set") === 0) {
+        if (strpos($name, "set") === 0) {
             $property_name = $this->methodNameToPropertyName(substr($name, 3));
             $this->offsetSet($property_name, $arguments[0]);
             return $this;
         }
 
-        if(strpos($name, "get") === 0) {
-            $property_name = $this->methodNameToPropertyName(substr($name, 3),true);
-            if(property_exists($this,$property_name) || $this->__isset($property_name)) {
+        if (strpos($name, "get") === 0) {
+            $property_name = $this->methodNameToPropertyName(substr($name, 3), true);
+            if (property_exists($this, $property_name) || $this->__isset($property_name)) {
                 return $this->$property_name;
             }
         }
@@ -170,7 +171,7 @@ class ObjectArrayAccess implements \ArrayAccess
         return null;
     }
 
-    private function methodNameToPropertyName($method_name,$force_conversion=false)
+    private function methodNameToPropertyName($method_name, $force_conversion = false)
     {
         if (!$force_conversion && static::$strict_property_case) {
             // la conversion sera faite ailleurs
@@ -193,16 +194,24 @@ class ObjectArrayAccess implements \ArrayAccess
 
     protected function getSnakeCase($camel_case)
     {
-        return preg_replace_callback("/([A-Z]{1})/",function($majuscule) {
-            return '_'.strtolower($majuscule[1]);
-        },lcfirst($camel_case));
+        return preg_replace_callback(
+            "/([A-Z]{1})/",
+            function ($majuscule) {
+                return '_' . strtolower($majuscule[1]);
+            },
+            lcfirst($camel_case)
+        );
     }
 
     protected function getCamelCase($snake_case)
     {
-        $camel_case = preg_replace_callback("#_(.)#",function($minuscule) {
-            return strtoupper($minuscule[1]);
-        },lcfirst($snake_case));
+        $camel_case = preg_replace_callback(
+            "#_(.)#",
+            function ($minuscule) {
+                return strtoupper($minuscule[1]);
+            },
+            lcfirst($snake_case)
+        );
         return $camel_case;
     }
 
@@ -219,8 +228,8 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     public function setData(array $data)
     {
-        foreach($data as $key => $value) {
-            $this->offsetSet($key,$value);
+        foreach ($data as $key => $value) {
+            $this->offsetSet($key, $value);
         }
     }
 
@@ -252,7 +261,7 @@ class ObjectArrayAccess implements \ArrayAccess
      */
     private function offsetIsAuthorized($offset)
     {
-        if (static::$fixed_structure>0 && !\in_array($offset, static::$structure_properties, true)) {
+        if (static::$fixed_structure > 0 && !\in_array($offset, static::$structure_properties, true)) {
             // set d'un offset non autorisé
             if (static::$fixed_structure === self::STATIC_STRUCTURE_WITH_EXCEPTION) {
                 throw new \RuntimeException("The offset $offset is not allowed here");
@@ -267,7 +276,6 @@ class ObjectArrayAccess implements \ArrayAccess
     protected function getOffsetName($offset_name)
     {
         if (static::$strict_property_case) {
-
             if (static::$property_case === self::SNAKE_CASE) {
                 return $this->getSnakeCase($offset_name);
             }
@@ -279,15 +287,14 @@ class ObjectArrayAccess implements \ArrayAccess
     public function recursiveGetData()
     {
         return $this->recursiveGet($this->data);
-
     }
 
     private function recursiveGet(array $data)
     {
-        foreach ($data as $k=>$v) {
-            if(is_array($v)) {
-                $data[$k]=$this->recursiveGet($data[$k]);
-            } elseif($v instanceof self) {
+        foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                $data[$k] = $this->recursiveGet($data[$k]);
+            } elseif ($v instanceof self) {
                 $data[$k] = $v->recursiveGetData();
             }
         }

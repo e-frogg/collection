@@ -9,8 +9,6 @@
 namespace Efrogg\Collection;
 
 
-use Efrogg\Collection\ObjectArrayAccess;
-
 class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 {
 
@@ -26,13 +24,13 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
     const SORT_DESC = 1;
 
 
-    protected $data = array();
+    protected $data = [];
 
     // liste des PK dans l'ordre iterable
-    protected $primary_index = array();
+    protected $primary_index = [];
 
     // liste des PK dans l'ordre iterable
-    protected $indexes = array();
+    protected $indexes = [];
 
     // pointeur pour iteration (PK courante)
     protected $current = 0;
@@ -46,15 +44,15 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      * @var array
      * Liste des index à maintenir
      */
-    protected $liste_index_keys = array();
+    protected $liste_index_keys = [];
 
     /**
      * ObjectCollection constructor.
      * @param array|iterable|null $data
      */
-    public function __construct($data=null)
+    public function __construct($data = null)
     {
-        if(is_iterable($data)) {
+        if (is_iterable($data)) {
             $this->addMultiple($data);
         }
     }
@@ -63,7 +61,8 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
     /**
      * @return \IteratorIterator
      */
-    public function getIterator() {
+    public function getIterator()
+    {
         return new \IteratorIterator($this);
     }
 
@@ -76,7 +75,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
     public function current()
     {
         $key = $this->key();
-        if(null === $key) {
+        if (null === $key) {
             return null;
         }
         return $this->data[$this->key()];
@@ -94,14 +93,16 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
     }
 
 
-    public function getNext() {
-        $this -> next();
-        return $this -> current();
+    public function getNext()
+    {
+        $this->next();
+        return $this->current();
     }
 
-    public function first() {
-        $this -> rewind();
-        return $this -> current();
+    public function first()
+    {
+        $this->rewind();
+        return $this->current();
     }
 
     /**
@@ -121,9 +122,9 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
     public function setKey($param)
     {
-        $pos = array_search($param,$this -> primary_index);
-        if($pos !== false) {
-            $this -> current = $pos;
+        $pos = array_search($param, $this->primary_index);
+        if ($pos !== false) {
+            $this->current = $pos;
         }
 //        echo "setKey $param => $pos";
 //        exit;
@@ -140,7 +141,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
     public function valid()
     {
         $key = $this->key();
-        if(null === $key) {
+        if (null === $key) {
             return false;
         }
         return isset($this->data[$this->key()]);
@@ -163,11 +164,11 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function exists($key)
     {
-        if(is_array($key)) {
-            return !is_null($this -> getOneBy($key));
-        } else {
-            return isset($this->data[$key]);
+        if (is_array($key)) {
+            return !is_null($this->getOneBy($key));
         }
+
+        return isset($this->data[$key]);
     }
 
     /**
@@ -195,7 +196,9 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
     public function addIndex($key_name, $index_type = "index")
     {
-        if ($this->hasIndex($key_name)) return $this;
+        if ($this->hasIndex($key_name)) {
+            return $this;
+        }
 
         $this->liste_index_keys[$key_name] = $index_type;
 
@@ -221,7 +224,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function add($item)
     {
-        if(is_array($item)) {
+        if (is_array($item)) {
             $item = new ObjectArrayAccess($item);
         }
 
@@ -231,7 +234,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
             $pk = $this->autoIncrement++;
         }
 
-        if(null === $pk) {
+        if (null === $pk) {
             // interdit d'ajouter un objet qui nous met une clé primaire nulle
             return false;
         }
@@ -241,7 +244,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
         foreach ($this->liste_index_keys as $key => $type_index) {
             // nested index ?
-            $k = self::getNestedValue($item,$key);
+            $k = self::getNestedValue($item, $key);
 //            $k = $item->{$key};
             $this->indexes[$key][$k][] = $pk;
         }
@@ -254,33 +257,35 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         return $this->data[$key];
     }
 
-    public function getColumn($column_name,$unique = true)
+    public function getColumn($column_name, $unique = true)
     {
-        $column = array();
+        $column = [];
         if ($column_name == $this->primary_key && $unique) {
             // primary
             return array_values($this->primary_index);
-        } elseif (isset($this->indexes[$column_name]) && $unique) {
+        }
+
+        if (isset($this->indexes[$column_name]) && $unique) {
             // index
             return array_keys($this->indexes[$column_name]);
+        }
+
+// full scan
+        if (self:: isKeyNested($column_name)) {
+            foreach ($this AS $item) {
+                $column[] = self:: getNestedValue($item, $column_name);
+            }
         } else {
-            // full scan
-            if (self:: isKeyNested($column_name)) {
-                foreach ($this AS $item) {
-                    $column[] = self:: getNestedValue($item, $column_name);
-                }
-            } else {
-                foreach ($this AS $item) {
-                    if(isset($item->$column_name)) {
-                        $column[] = $item->{$column_name};
-                    }
+            foreach ($this AS $item) {
+                if (isset($item->$column_name)) {
+                    $column[] = $item->{$column_name};
                 }
             }
-            if($unique) {
-                $column = array_values(array_unique($column));
-            } else {
-                $column = array_values($column);
-            }
+        }
+        if ($unique) {
+            $column = array_values(array_unique($column));
+        } else {
+            $column = array_values($column);
         }
         return $column;
     }
@@ -312,7 +317,9 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function getBy($selector, $limit = null, $withIndexes = true)
     {
-        if (is_null($limit)) $limit = 999999;
+        if (is_null($limit)) {
+            $limit = 999999;
+        }
 
         // préparation de la collection
         $collection = $this->factoryFromThis($withIndexes);
@@ -337,7 +344,9 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
         foreach ($combined as $k) {
             $collection->add($this->data[$k]);
-            if ($limit-- <= 1) break;
+            if ($limit-- <= 1) {
+                break;
+            }
         }
 
         return $collection;
@@ -347,11 +356,12 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      * @param callable $user_filter_callback
      * @return ObjectCollection
      */
-    public function getByCallback($user_filter_callback) {
-        $collection = $this -> factoryFromThis();
-        foreach($this as $item) {
-            if($user_filter_callback($item)) {
-                $collection -> add($item);
+    public function getByCallback($user_filter_callback)
+    {
+        $collection = $this->factoryFromThis();
+        foreach ($this as $item) {
+            if ($user_filter_callback($item)) {
+                $collection->add($item);
             }
         }
         return $collection;
@@ -366,34 +376,34 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      * @param array $transforms
      * @return ObjectCollection
      */
-    public function groupBy($columnName,$transforms = array())
+    public function groupBy($columnName, $transforms = [])
     {
         $collection = $this->factoryFromThis();
-        $collection -> setPrimary($columnName);
+        $collection->setPrimary($columnName);
 
         // pré-calcul des clés de transformation
-        $keysTransform = array();
+        $keysTransform = [];
         $useClone = false;
-        $useTransform= false;
-        if(!empty($transforms)) {
-            $useTransform= true;
-            foreach($transforms as $new_column_name => $type) {
-                $keysTransform[]=$type[0];
-                if($type[1] == self::TRANSFORM_COLLECTION) {
+        $useTransform = false;
+        if (!empty($transforms)) {
+            $useTransform = true;
+            foreach ($transforms as $new_column_name => $type) {
+                $keysTransform[] = $type[0];
+                if ($type[1] == self::TRANSFORM_COLLECTION) {
                     $useClone = true;
                 }
             }
             $keysTransform = array_unique($keysTransform);
         }
 
-        $done = array();
+        $done = [];
         foreach ($this AS $one) {
-            if(property_exists($one,$columnName) || !is_null($one->$columnName)) {
+            if (property_exists($one, $columnName) || !is_null($one->$columnName)) {
                 $key = $one->{$columnName};
                 if (!isset($done[$key])) {
                     //                $one -> __count ++;
 
-                    if($useClone) {
+                    if ($useClone) {
                         $cloneOne = clone($one);
                     } else {
                         $cloneOne = $one;
@@ -403,38 +413,41 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
                     $done[$key] = $cloneOne;
 
                     // gestion des aggregs
-                    if($useTransform) {
-                        foreach($keysTransform as $col_name) {
-                            $cloneOne -> {'__'.$col_name."_detail"} = array(
-                                "values" => array($cloneOne->{$col_name}),
-                                "original" => array($one)
-                            );
+                    if ($useTransform) {
+                        foreach ($keysTransform as $col_name) {
+                            $cloneOne->{'__' . $col_name . "_detail"} = [
+                                "values" => [$cloneOne->{$col_name}],
+                                "original" => [$one],
+                            ];
                         }
                     }
-                } elseif($useTransform) {
+                } elseif ($useTransform) {
                     // gestion des aggregs
                     $originalOne = $done[$key];
-                    foreach($keysTransform as $col_name) {
+                    foreach ($keysTransform as $col_name) {
                         // get + set du détail, àa cause des DB (__get et __set)
-                        $detail = $originalOne -> {'__'.$col_name."_detail"};   // get
-                        $detail["values"] []= $one->{$col_name};
-                        $detail["original"] []= $one;
-                        $originalOne -> {'__'.$col_name."_detail"} = $detail;   // set
+                        $detail = $originalOne->{'__' . $col_name . "_detail"};   // get
+                        $detail["values"] [] = $one->{$col_name};
+                        $detail["original"] [] = $one;
+                        $originalOne->{'__' . $col_name . "_detail"} = $detail;   // set
                     }
                 }
             }
         }
 
         // gestion des aggregs
-        if($useTransform) {
+        if ($useTransform) {
             foreach ($collection as $one) {
                 foreach ($transforms as $new_column_name => $type) {
-                    $one->{'__'.$type[0] . "_detail"} = $this->transformGroup($one->{'__'.$type[0] . "_detail"}, $type[1]);
-                    $one->{$new_column_name} = $one->{'__'.$type[0] . "_detail"}[$type[1]];
+                    $one->{'__' . $type[0] . "_detail"} = $this->transformGroup(
+                        $one->{'__' . $type[0] . "_detail"},
+                        $type[1]
+                    );
+                    $one->{$new_column_name} = $one->{'__' . $type[0] . "_detail"}[$type[1]];
                 }
             }
         }
-        $collection -> rewind();
+        $collection->rewind();
 
         return $collection;
     }
@@ -454,8 +467,13 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      * Définit si un clone des items d'origine sont générés
      * @return ObjectCollection
      */
-    public function leftJoin(ObjectCollection $collection, $on_conditions, $column_name = null, $singleJoin = true, $use_clone = false)
-    {
+    public function leftJoin(
+        ObjectCollection $collection,
+        $on_conditions,
+        $column_name = null,
+        $singleJoin = true,
+        $use_clone = false
+    ) {
         // on ajoute éventuellement les index pour la jointure
         foreach ($on_conditions as $keyA => $keyB) {
             $this->addIndex($keyA);
@@ -483,7 +501,6 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
                             if ($use_clone) {
                                 $newCollection->add($clone);
                             }
-
                         } else {
                             if ($singleJoin) {
                                 $itemA->{$column_name} = $itemB;
@@ -493,7 +510,9 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
                         }
 
                         // jointure simple, on ne joint qu'une valeur
-                        if ($singleJoin) break;
+                        if ($singleJoin) {
+                            break;
+                        }
                     }
                 }
             }
@@ -502,10 +521,11 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         return $use_clone ? $newCollection : $this;
     }
 
-    public function orderByCallback($callback_order) {
+    public function orderByCallback($callback_order)
+    {
         $collection = $this->factoryFromThis();
 
-        $arr = array();
+        $arr = [];
         foreach ($this AS $item) {
             $arr[] = $item;
         }
@@ -515,9 +535,10 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         $collection->addMultiple($arr);
         return $collection;
     }
+
     public function orderBy($orders)
     {
-        return $this -> orderByCallback(
+        return $this->orderByCallback(
             function ($a, $b) use ($orders) {
                 foreach ($orders AS $k => $sens) {
                     if (ObjectCollection::isKeyNested($k)) {
@@ -528,31 +549,41 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
                         $vb = $b->{$k};
                     }
                     if ($sens == ObjectCollection::SORT_DESC) {
-                        if ($va > $vb) return -1;
-                        if ($va < $vb) return 1;
+                        if ($va > $vb) {
+                            return -1;
+                        }
+                        if ($va < $vb) {
+                            return 1;
+                        }
                     } elseif ($sens == ObjectCollection::SORT_ASC) {
-                        if ($va > $vb) return 1;
-                        if ($va < $vb) return -1;
-                    } elseif(is_array($sens)) {
+                        if ($va > $vb) {
+                            return 1;
+                        }
+                        if ($va < $vb) {
+                            return -1;
+                        }
+                    } elseif (is_array($sens)) {
                         // order by field
-                        return array_search($va,$sens) - array_search($vb,$sens);
+                        return array_search($va, $sens) - array_search($vb, $sens);
                     }
                 }
                 return 0;
-            });
-
+            }
+        );
     }
 
     protected function getPks($key_name, $key_value)
     {
 //        var_dump($key_value);
-        if (!is_array($key_value)) $key_value = array($key_value);
+        if (!is_array($key_value)) {
+            $key_value = [$key_value];
+        }
 
         if ($key_name == $this->primary_key) {
             return $key_value;
         }
 
-        $index_values = array();
+        $index_values = [];
         if (isset($this->indexes[$key_name])) {
             // colonne indexée
             foreach ($key_value as $one_key_value) {
@@ -566,7 +597,6 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
                     }
                 }
             }
-
         } else {
             // full scan
             foreach ($this as $k => $item) {
@@ -590,7 +620,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
     public function addMultiple($items)
     {
-        if(is_iterable($items)) {
+        if (is_iterable($items)) {
             foreach ($items as $item) {
                 $this->add($item);
             }
@@ -636,7 +666,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
     private function transformGroup($detail, $type)
     {
-        switch($type) {
+        switch ($type) {
             case self::TRANSFORM_SUM:
                 $detail[$type] = array_sum($detail["values"]);
                 break;
@@ -647,14 +677,14 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
                 $detail[$type] = count($detail["values"]);
                 break;
             case self::TRANSFORM_GROUP_CONCAT:
-                $detail[$type] = implode(",",$detail["values"]);
+                $detail[$type] = implode(",", $detail["values"]);
                 break;
             case self::TRANSFORM_VALUES:
                 $detail[$type] = $detail["values"];
                 break;
             case self::TRANSFORM_COLLECTION:
                 $collect = new ObjectCollection();
-                $collect -> addMultiple($detail["original"]);
+                $collect->addMultiple($detail["original"]);
                 $detail[$type] = $collect;
                 break;
         }
@@ -663,45 +693,49 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
     public function __clone()
     {
-        $new = $this -> factoryFromThis(true);
-        $new -> addMultiple($this);
+        $new = $this->factoryFromThis(true);
+        $new->addMultiple($this);
         return $new;
     }
 
-    public function getArray() {
-        $array = array();
-        foreach($this->data as $data) {
-            $array[]=$data;
+    public function getArray()
+    {
+        $array = [];
+        foreach ($this->data as $data) {
+            $array[] = $data;
         }
         return $array;
     }
 
-    public function reset() {
-        $this->data = array();
-        $this->primary_index = array();
-        foreach($this->indexes as $key_name => $index) {
-            $this->indexes[$key_name] = array();
+    public function reset()
+    {
+        $this->data = [];
+        $this->primary_index = [];
+        foreach ($this->indexes as $key_name => $index) {
+            $this->indexes[$key_name] = [];
         }
     }
 
 
-
-    public function offsetExists($offset) {
-        if(!$this->isAutoIncrement()) {
+    public function offsetExists($offset)
+    {
+        if (!$this->isAutoIncrement()) {
             throw new \LogicException("array access only for autoincrement collection");
         }
         return isset($this->primary_index[$offset]);
     }
 
-    public function offsetGet($offset) {
-        if(!$this->isAutoIncrement()) {
+    public function offsetGet($offset)
+    {
+        if (!$this->isAutoIncrement()) {
             throw new \LogicException("array access only for autoincrement collection");
         }
         $k = $this->primary_index[$offset];
         return $this->data[$k];
     }
 
-    public function offsetSet($offset, $value) {
+    public function offsetSet($offset, $value)
+    {
         throw new \LogicException("array access collection read only ");
 
 //        if(!$this->isAutoIncrement()) {
@@ -711,7 +745,8 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 //        $this->data[$k] = $value;
     }
 
-    public function offsetUnset($offset){
+    public function offsetUnset($offset)
+    {
         throw new \LogicException("array access collection read only ");
 //        if(!$this->isAutoIncrement()) {
 //            throw new \LogicException("array access only for autoincrement collection");
@@ -725,12 +760,14 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         return is_null($this->primary_key);
     }
 
-    public function isEmpty() {
-        return $this->count()<=0;
+    public function isEmpty()
+    {
+        return $this->count() <= 0;
     }
 
-    public function each(callable $callback) {
-        foreach($this->data as $k => $item) {
+    public function each(callable $callback)
+    {
+        foreach ($this->data as $k => $item) {
             $callback($item);
         }
     }
