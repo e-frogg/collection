@@ -3,7 +3,7 @@
 namespace Efrogg\Collection;
 
 
-use Symfony\Component\Inflector\Inflector;
+use Doctrine\Common\Inflector\Inflector;
 
 class Pluralizer
 {
