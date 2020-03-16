@@ -212,52 +212,6 @@
                 "unit testing"
             ],
             "time": "2020-03-04T10:29:09+00:00"
-        },
-        {
-            "name": "efrogg/database",
-            "version": "v0.0.8",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/raphael-homann/DbManager.git",
-                "reference": "2b417d867ea9fe40003940844adc9df7f9530029"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/raphael-homann/DbManager/zipball/2b417d867ea9fe40003940844adc9df7f9530029",
-                "reference": "2b417d867ea9fe40003940844adc9df7f9530029",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Efrogg\\Db\\": "src/Db/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Raph raph",
-                    "email": "raph@e-frogg.com"
-                }
-            ],
-            "description": "Database tools",
-            "keywords": [
-                "database",
-                "mysql",
-                "pdo"
-            ],
-            "time": "2016-12-07T21:10:41+00:00"
         }
     ],
     "aliases": [],
