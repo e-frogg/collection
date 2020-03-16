@@ -140,7 +140,7 @@ class ObjectArrayAccess implements \ArrayAccess
                 foreach ($arguments as $item) {
                     if (property_exists($this, $property_name)) {
                         // propriété existante
-                        $this->$property_name[] = $item;
+                        array_push($this->$property_name,$item);
                     } elseif ($this->__isset($property_name)) {
                         // propriété dynamique existante
                         $this->data[$property_name][] = $item;
