@@ -228,7 +228,7 @@ class ObjectArrayAccess implements \ArrayAccess
      * renvoie la liste des propriétés accessibles dans l'objet automatique
      * @return array
      */
-    public function getAttributes(): array
+    public function getAttributes()
     {
         return array_keys($this->data);
     }
@@ -250,7 +250,7 @@ class ObjectArrayAccess implements \ArrayAccess
      *
      * @throws \RuntimeException
      */
-    private function offsetIsAuthorized($offset): bool
+    private function offsetIsAuthorized($offset)
     {
         if (static::$fixed_structure>0 && !\in_array($offset, static::$structure_properties, true)) {
             // set d'un offset non autorisé
