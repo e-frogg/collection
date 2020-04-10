@@ -14,7 +14,6 @@ use atoum;
 use Efrogg\Collection\tests\units\Assets\FixedArrayAccess;
 use Efrogg\Collection\tests\units\Assets\FixedArrayAccessWithException;
 use Efrogg\Collection\tests\units\Assets\NonStrictCamelCasePropertyArrayAccess;
-use Efrogg\Collection\tests\units\Assets\StandardCaseArrayAccess;
 use Efrogg\Collection\tests\units\Assets\StrictCamelCasePropertyArrayAccess;
 
 class ObjectArrayAccess extends atoum
@@ -329,7 +328,6 @@ class ObjectArrayAccess extends atoum
             ->hasSize(2)
             ->isEqualTo(["123", "456"])
             ->contains("456");
-
     }
 
 
@@ -385,4 +383,38 @@ class ObjectArrayAccess extends atoum
 
     }
 
+    public function testMagicalGettersCamelCase()
+    {
+        $obj = new StrictCamelCasePropertyArrayAccess(
+            [
+                "eligible" => true,
+                "initialProperty" => "someValue"
+            ]
+        );
+
+        $this
+            ->given($obj)
+            ->then
+            ->string($obj->getInitialProperty())
+            ->string($obj->isInitialProperty())
+            ->string($obj->hasInitialProperty())
+            ->isEqualTo('someValue')
+        ;
+
+        $this
+            ->given($obj)
+            ->then
+            ->boolean($obj->getEligible())
+            ->boolean($obj->isEligible())
+            ->boolean($obj->hasEligible())
+            ->boolean($obj->haseligible())
+            ->isEqualTo(true)
+        ;
+
+        $this
+            ->given($obj)
+            ->then
+            ->variable($obj->iseligible())
+            ->isNull();
+    }
 }
