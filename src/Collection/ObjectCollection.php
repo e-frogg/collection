@@ -229,8 +229,8 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
 
         if(null === $item) throw new \InvalidArgumentException('item cannot be null');
-        if(!is_object($item)) throw new \InvalidArgumentException('item must be an object');
-
+        if(!is_object($item) && !is_array($item)) throw new \InvalidArgumentException('item must be an object');
+        
         if (is_array($item)) {
             $item = new ObjectArrayAccess($item);
         }
