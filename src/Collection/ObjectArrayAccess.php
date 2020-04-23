@@ -140,7 +140,7 @@ class ObjectArrayAccess implements \ArrayAccess
                 foreach ($arguments as $item) {
                     if (property_exists($this, $property_name)) {
                         // propriété existante
-                        array_push($this->$property_name,$item);
+                        $this->$property_name[] = $item;
                     } elseif ($this->__isset($property_name)) {
                         // propriété dynamique existante
                         $this->data[$property_name][] = $item;
@@ -184,36 +184,15 @@ class ObjectArrayAccess implements \ArrayAccess
         }
         if (static::$property_case === self::SNAKE_CASE) {
             // conversion camel -> snake
-            return $this->getSnakeCase($method_name);
+            return CaseConverter::getSnakeCase($method_name);
         }
 
         // conversion snake -> camel
-        return $this->getCamelCase($method_name);
+        return CaseConverter::getCamelCase($method_name);
     }
 
 
-    protected function getSnakeCase($camel_case)
-    {
-        return preg_replace_callback(
-            "/([A-Z]{1})/",
-            function ($majuscule) {
-                return '_' . strtolower($majuscule[1]);
-            },
-            lcfirst($camel_case)
-        );
-    }
 
-    protected function getCamelCase($snake_case)
-    {
-        $camel_case = preg_replace_callback(
-            "#_(.)#",
-            function ($minuscule) {
-                return strtoupper($minuscule[1]);
-            },
-            lcfirst($snake_case)
-        );
-        return $camel_case;
-    }
 
     /**
      * @return array
@@ -277,9 +256,9 @@ class ObjectArrayAccess implements \ArrayAccess
     {
         if (static::$strict_property_case) {
             if (static::$property_case === self::SNAKE_CASE) {
-                return $this->getSnakeCase($offset_name);
+                return CaseConverter::getSnakeCase($offset_name);
             }
-            return $this->getCamelCase($offset_name);
+            return CaseConverter::getCamelCase($offset_name);
         }
         return $offset_name;
     }

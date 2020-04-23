@@ -9,6 +9,8 @@
 namespace Efrogg\Collection;
 
 
+use Symfony\Component\PropertyAccess\PropertyAccessor;
+
 class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 {
 
@@ -229,7 +231,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         }
 
         if (!$this->isAutoIncrement()) {
-            $pk = $item->{$this->primary_key};
+            $pk = self::getObjectProperty($item, $this->primary_key);
         } else {
             $pk = $this->autoIncrement++;
         }
@@ -278,7 +280,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         } else {
             foreach ($this AS $item) {
                 if (isset($item->$column_name)) {
-                    $column[] = $item->{$column_name};
+                    $column[] = self::getObjectProperty($item, $column_name);
                 }
             }
         }
@@ -572,6 +574,12 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         );
     }
 
+    /**
+     * réupération des primary keys correspondant à la sélection
+     * @param $key_name
+     * @param $key_value
+     * @return array|mixed
+     */
     protected function getPks($key_name, $key_value)
     {
 //        var_dump($key_value);
@@ -579,7 +587,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
             $key_value = [$key_value];
         }
 
-        if ($key_name == $this->primary_key) {
+        if ($key_name === $this->primary_key) {
             return $key_value;
         }
 
@@ -603,7 +611,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
                 if (self::isKeyNested($key_name)) {
                     $current_value = self::getNestedValue($item, $key_name);
                 } else {
-                    $current_value = $item->{$key_name};
+                    $current_value = self::getObjectProperty($item, $key_name);
                 }
 
                 foreach ($key_value as $one_key_value) {
@@ -644,7 +652,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
     public static function isKeyNested($column_name)
     {
-        return strpos($column_name, ".") > 0;
+        return strpos($column_name, '.') > 0;
     }
 
     /**
@@ -656,10 +664,10 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public static function getNestedValue($item, $column_name)
     {
-        $split = explode(".", $column_name);
+        $split = array_filter(explode('.', $column_name));
         $value = $item;
         foreach ($split as $k) {
-            $value = $value->{$k};
+            $value = self::getObjectProperty($value, $k);
         }
         return $value;
     }
@@ -772,4 +780,34 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         }
     }
 
+    private static function getObjectProperty($item, $key_name)
+    {
+        //TODO : voir PropertyAccessor ?
+
+        // passage du nom d'une méthode direct
+        if (method_exists($item, $key_name)) {
+            return $item->{$key_name}();      // getPropertyName()
+        }
+
+        $methodSuffix = self::getMethodSuffix($key_name);
+
+        // getter getXxx
+        if (method_exists($item, $method = 'get' . $methodSuffix)) {
+            return $item->{$method}();      // getPropertyName()
+        }
+
+        // getter isXxx
+        if (method_exists($item, $method = 'is' . $methodSuffix)) {
+            return $item->{$method}();      // isPropertyName()
+        }
+
+        // propriété existante (must be public !)
+        return $item->{$key_name};
+    }
+
+
+    private static function getMethodSuffix(string $key_name)
+    {
+        return ucfirst(CaseConverter::getCamelCase($key_name));
+    }
 }
