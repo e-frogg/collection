@@ -14,7 +14,6 @@ use atoum;
 use Efrogg\Collection\tests\units\Assets\FixedArrayAccess;
 use Efrogg\Collection\tests\units\Assets\FixedArrayAccessWithException;
 use Efrogg\Collection\tests\units\Assets\NonStrictCamelCasePropertyArrayAccess;
-use Efrogg\Collection\tests\units\Assets\StandardCaseArrayAccess;
 use Efrogg\Collection\tests\units\Assets\StrictCamelCasePropertyArrayAccess;
 
 class ObjectArrayAccess extends atoum
@@ -138,7 +137,6 @@ class ObjectArrayAccess extends atoum
         $this
             ->integer($flexible->custom_variable)
             ->isEqualTo(14)
-            ->integer($flexible->custom_variable)
             ->isEqualTo($flexible->getCustomVariable());
 
         $flexible
@@ -329,7 +327,6 @@ class ObjectArrayAccess extends atoum
             ->hasSize(2)
             ->isEqualTo(["123", "456"])
             ->contains("456");
-
     }
 
 
@@ -385,4 +382,149 @@ class ObjectArrayAccess extends atoum
 
     }
 
+    public function testMagicalGettersCamelCase()
+    {
+        $obj = new StrictCamelCasePropertyArrayAccess(
+            [
+                "eligible" => true,
+                "initialProperty" => "someValue",
+                "trueInt" => '1',
+                "falseInt" => '0',
+                "trueString" => 'true',
+                "falseString" => 'false',
+            ]
+        );
+
+        $this
+            ->given($obj)
+            ->then
+            ->string($obj->getInitialProperty())
+            ->isEqualTo('someValue')
+        ;
+
+        //boolean value
+        $this
+            ->given($obj)
+            ->then
+            ->boolean($obj->getEligible())
+            ->boolean($obj->isEligible())
+            ->boolean($obj->hasEligible())
+            ->boolean($obj->haseligible())
+            ->boolean($obj->hasInitialProperty())
+            ->isEqualTo(true)
+        ;
+
+        //int as bool true
+        $this
+            ->given($obj)
+            ->then
+            ->string($obj->getTrueInt())
+            ->isEqualTo('1')
+            ->boolean($obj->isTrueInt())
+            ->boolean($obj->hasTrueInt())
+            ->boolean($obj->hastrueInt())
+            ->isEqualTo(true)
+        ;
+
+        //int as bool false
+        $this
+            ->given($obj)
+            ->then
+            ->string($obj->getFalseInt())
+            ->isEqualTo('0')
+            ->boolean($obj->isFalseInt())
+            ->isEqualTo(false)
+            ->boolean($obj->hasFalseInt())
+            ->boolean($obj->hasfalseInt())
+            ->isEqualTo(true)
+        ;
+
+        //string as bool true
+        $this
+            ->given($obj)
+            ->then
+            ->string($obj->getTrueString())
+            ->isEqualTo('true')
+            ->boolean($obj->isTrueString())
+            ->boolean($obj->hasTrueString())
+            ->boolean($obj->hastrueString())
+            ->isEqualTo(true)
+        ;
+
+        //string as bool false
+        $this
+            ->given($obj)
+            ->then
+            ->string($obj->getFalseString())
+            ->isEqualTo('false')
+            ->boolean($obj->isFalseString())
+            ->isEqualTo(false)
+            ->boolean($obj->hasFalseString())
+            ->boolean($obj->hasfalseString())
+            ->isEqualTo(true)
+        ;
+
+        //non existant property
+        $this
+            ->given($obj)
+            ->then
+            ->boolean($obj->hasTruc())
+            ->isEqualTo(false)
+        ;
+        $this
+            ->given($obj)
+            ->then
+            ->variable($obj->getTruc())
+            ->variable($obj->isTruc())
+            ->isNull();
+
+        //invalid "is" getter name
+        $this
+            ->given($obj)
+            ->then
+            ->variable($obj->iseligible())
+            ->isNull();
+    }
+
+    public function testMagicalAddCamelCase()
+    {
+        $obj = new StrictCamelCasePropertyArrayAccess(
+            [
+                "someDatas" => [],
+            ]
+        );
+
+        $this
+            ->given($obj)
+            ->then
+            ->object($obj->addSomeData(1))
+            ->isEqualTo($obj)
+        ;
+
+        $this
+            ->given($obj)
+            ->then
+            ->array($obj->getSomeDatas())
+            ->isEqualTo($obj->someDatas)
+            ->isEqualTo([1])
+        ;
+
+        $obj->addSomeOtherData(3);
+        $this
+            ->given($obj)
+            ->then
+            ->array($obj->getSomeOtherDatas())
+            ->isEqualTo($obj->someOtherDatas)
+            ->isEqualTo([3])
+        ;
+
+        $obj->addSomeOtherData(6);
+        $this
+            ->given($obj)
+            ->then
+            ->array($obj->getSomeOtherDatas())
+            ->isEqualTo($obj->someOtherDatas)
+            ->isEqualTo([3, 6])
+        ;
+    }
 }

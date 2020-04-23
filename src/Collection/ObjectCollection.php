@@ -8,6 +8,7 @@
 
 namespace Efrogg\Collection;
 
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
@@ -24,6 +25,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
     const SORT_ASC = 0;
     const SORT_DESC = 1;
+    const NULL_KEY = "__NULL__";
 
 
     protected $data = [];
@@ -226,11 +228,16 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function add($item)
     {
+
+
+        if(null === $item) throw new \InvalidArgumentException('item cannot be null');
+        if(!is_object($item) && !is_array($item)) throw new \InvalidArgumentException('item must be an object');
+        
         if (is_array($item)) {
             $item = new ObjectArrayAccess($item);
         }
 
-        if (!$this->isAutoIncrement()) {
+        if (!is_null($this->primary_key) && !$this->isAutoIncrement()) {
             $pk = self::getObjectProperty($item, $this->primary_key);
         } else {
             $pk = $this->autoIncrement++;
@@ -595,6 +602,9 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         if (isset($this->indexes[$key_name])) {
             // colonne indexée
             foreach ($key_value as $one_key_value) {
+                if(null === $one_key_value) {
+                    $one_key_value = self::NULL_KEY;
+                }
                 if (isset($this->indexes[$key_name][$one_key_value])) {
                     $one_index_values = $this->indexes[$key_name][$one_key_value];
 

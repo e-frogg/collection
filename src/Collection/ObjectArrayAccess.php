@@ -153,17 +153,32 @@ class ObjectArrayAccess implements \ArrayAccess
             return $this;
         }
 
-        // get : fluent setter
+        // set : fluent setter
         if (strpos($name, "set") === 0) {
             $property_name = $this->methodNameToPropertyName(substr($name, 3));
             $this->offsetSet($property_name, $arguments[0]);
             return $this;
         }
 
+        // get : getter
         if (strpos($name, "get") === 0) {
             $property_name = $this->methodNameToPropertyName(substr($name, 3), true);
             if (property_exists($this, $property_name) || $this->__isset($property_name)) {
                 return $this->$property_name;
+            }
+        }
+
+        //has : existence check
+        if (strpos($name, "has") === 0) {
+            $property_name = $this->methodNameToPropertyName(substr($name, 3), true);
+            return (property_exists($this, $property_name) || $this->__isset($property_name));
+        }
+
+        // is : boolean getter
+        if (strpos($name, 'is') === 0 && strlen($name) > 2 && strtoupper($name[2]) === $name[2]) {
+            $property_name = $this->methodNameToPropertyName(substr($name, 2), true);
+            if (property_exists($this, $property_name) || $this->__isset($property_name)) {
+                return is_string($this->$property_name) && (($this->$property_name === 'false' || $this->$property_name === 'null')) ? false : (bool)$this->$property_name;
             }
         }
 
