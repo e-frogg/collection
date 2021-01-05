@@ -17,12 +17,15 @@
     "require": {
         "php": ">=5.4.0",
         "symfony/polyfill-php71":"~1.0",
-        "doctrine/inflector":"^1.1"
+        "doctrine/inflector":"^1.4 || ^2.0"
     },
     "require-dev": {
         "atoum/atoum": "^3.4"
     },
     "autoload": {
-        "psr-4": { "Efrogg\\Collection\\": "src/Collection/" }
+        "psr-4": {
+            "Efrogg\\Collection\\": "src/Collection/",
+            "Efrogg\\Util\\": "src/Util/"
+        }
     }
 }
