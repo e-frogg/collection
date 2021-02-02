@@ -2,8 +2,7 @@
 
 namespace Efrogg\Collection;
 
-
-use Doctrine\Common\Inflector\Inflector;
+use Efrogg\Util\Inflector;
 
 class Pluralizer
 {
