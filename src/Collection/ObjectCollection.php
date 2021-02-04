@@ -159,7 +159,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function rewind()
     {
-        $this->current = 0;
+        $this->current = reset($this->primary_index);
     }
 
     /**
