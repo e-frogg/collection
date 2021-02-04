@@ -206,13 +206,35 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
 
         $this->liste_index_keys[$key_name] = $index_type;
 
+        $this->populateIndex($key_name);
+
+        return $this;
+    }
+    public function refreshIndexes() {
+        foreach ($this->indexes as $key_name => $index) {
+            $this->refreshIndex($key_name);
+        }
+    }
+    public function refreshIndex($key_name)
+    {
+        if (!isset($this->indexes[$key_name])) {
+            // l'index n'existe pas
+            return;
+        }
+
+        // on vide l'index
+        unset($this->indexes[$key_name]);
+
+        $this->populateIndex($key_name);
+    }
+    protected function populateIndex($key_name) {
+        // et on le peuple
         if (!empty($this->data)) {
             foreach ($this->data AS $pk => $item) {
                 $val = $item->{$key_name};
                 $this->indexes[$key_name][$val][] = $pk;
             }
         }
-        return $this;
     }
 
     public function removeIndex($key_name)
@@ -819,5 +841,15 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
     private static function getMethodSuffix(string $key_name)
     {
         return ucfirst(CaseConverter::getCamelCase($key_name));
+    }
+
+    public function remove($object)
+    {
+        $position = array_search($object, $this->data, true);
+        if (false !== $position) {
+            unset($this->data[$position]);
+            unset($this->primary_index[$position]);
+            $this->refreshIndexes();
+        }
     }
 }

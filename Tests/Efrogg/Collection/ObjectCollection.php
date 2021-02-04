@@ -99,7 +99,32 @@ class ObjectCollection extends atoum {
             ->isInstanceOf(\Efrogg\Collection\ObjectCollection::class);
     }
 
-    /**
+    public function testRemove() {
+        $collection = new \Efrogg\Collection\ObjectCollection();
+        $collection->setPrimary('name');
+        $item1 = (object)['name'=>'item1','value'=>'value1'];
+        $item2 = (object)['name'=>'item2','value'=>'value2'];
+        $item3 = (object)['name'=>'item3','value'=>'value3'];
+        $collection->addMultiple([$item1,$item2,$item3]);
+        $collection->addIndex('value');
+
+        $this
+            ->array($collection->getArray())
+            ->hasSize(3);
+        $this->object($collection->get('item2'))
+            ->isIdenticalTo($item2);
+        $this->object($collection->getOneBy(['value'=>'value2']))
+            ->isIdenticalTo($item2);
+
+        $collection->remove($item2);
+
+        $this->variable($collection->get('item2'))
+            ->isNull();
+        $this->variable($collection->getOneBy(['value'=>'value2']))
+            ->isNull();
+    }
+
+        /**
      * Test les methodes d'it�ration sur la collection
      */
     public function testAddAndIterableCollection() {
