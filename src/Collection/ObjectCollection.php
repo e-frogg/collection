@@ -378,7 +378,9 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         }
 
         foreach ($combined as $k) {
-            $collection->add($this->data[$k]);
+            if(isset($this->data[$k])) {
+                $collection->add($this->data[$k]);
+            }
             if ($limit-- <= 1) {
                 break;
             }
