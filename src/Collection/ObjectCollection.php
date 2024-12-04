@@ -76,7 +76,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      * @return mixed Can return any type.
      * @since 5.0.0
      */
-    public function current()
+    public function current(): mixed
     {
         $key = $this->key();
         if (null === $key) {
@@ -91,7 +91,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      * @return void Any returned value is ignored.
      * @since 5.0.0
      */
-    public function next()
+    public function next(): void
     {
         $this->current++;
     }
@@ -115,7 +115,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      * @return mixed scalar on success, or null on failure.
      * @since 5.0.0
      */
-    public function key()
+    public function key(): mixed
     {
         if (!isset($this->primary_index[$this->current])) {
             return null;
@@ -130,8 +130,8 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         if ($pos !== false) {
             $this->current = $pos;
         }
-//        echo "setKey $param => $pos";
-//        exit;
+        //        echo "setKey $param => $pos";
+        //        exit;
 
     }
 
@@ -142,7 +142,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      * Returns true on success or false on failure.
      * @since 5.0.0
      */
-    public function valid()
+    public function valid(): bool
     {
         $key = $this->key();
         if (null === $key) {
@@ -157,7 +157,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      * @return void Any returned value is ignored.
      * @since 5.0.0
      */
-    public function rewind()
+    public function rewind(): void
     {
         if(empty($this->primary_index)) {
             $this->current = 0;
@@ -280,7 +280,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         foreach ($this->liste_index_keys as $key => $type_index) {
             // nested index ?
             $k = self::getNestedValue($item, $key);
-//            $k = $item->{$key};
+            //            $k = $item->{$key};
             $this->indexes[$key][$k][] = $pk;
         }
 
@@ -305,7 +305,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
             return array_keys($this->indexes[$column_name]);
         }
 
-// full scan
+        // full scan
         if (self:: isKeyNested($column_name)) {
             foreach ($this AS $item) {
                 $column[] = self:: getNestedValue($item, $column_name);
@@ -617,7 +617,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      */
     protected function getPks($key_name, $key_value)
     {
-//        var_dump($key_value);
+        //        var_dump($key_value);
         if (!is_array($key_value)) {
             $key_value = [$key_value];
         }
@@ -660,7 +660,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
                 }
             }
         }
-//        var_dump($index_values);
+        //        var_dump($index_values);
         return $index_values;
     }
 
@@ -683,7 +683,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
      * The return value is cast to an integer.
      * @since 5.1.0
      */
-    public function count()
+    public function count(): int
     {
         return count($this->primary_index);
     }
@@ -763,7 +763,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
     }
 
 
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         if (!$this->isAutoIncrement()) {
             throw new \LogicException("array access only for autoincrement collection");
@@ -771,7 +771,7 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         return isset($this->primary_index[$offset]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         if (!$this->isAutoIncrement()) {
             throw new \LogicException("array access only for autoincrement collection");
@@ -780,25 +780,25 @@ class ObjectCollection implements \Iterator, \Countable, \ArrayAccess
         return $this->data[$k];
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new \LogicException("array access collection read only ");
 
-//        if(!$this->isAutoIncrement()) {
-//            throw new \LogicException("array access only for autoincrement collection");
-//        }
-//        $k = $this->primary_index[$offset];
-//        $this->data[$k] = $value;
+        //        if(!$this->isAutoIncrement()) {
+        //            throw new \LogicException("array access only for autoincrement collection");
+        //        }
+        //        $k = $this->primary_index[$offset];
+        //        $this->data[$k] = $value;
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new \LogicException("array access collection read only ");
-//        if(!$this->isAutoIncrement()) {
-//            throw new \LogicException("array access only for autoincrement collection");
-//        }
-//        $k = $this->primary_index[$offset];
-//        unset($this->data[$k]);
+        //        if(!$this->isAutoIncrement()) {
+        //            throw new \LogicException("array access only for autoincrement collection");
+        //        }
+        //        $k = $this->primary_index[$offset];
+        //        unset($this->data[$k]);
     }
 
     public function isAutoIncrement()
